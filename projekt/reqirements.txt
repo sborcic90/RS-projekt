@@ -1,0 +1,2 @@
+fastapi== koja verzija npr 0.105.0
+Boto3==1.33.13
