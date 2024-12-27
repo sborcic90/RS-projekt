@@ -54,7 +54,7 @@ while broj < 5:
 z, r = zbroj_razlika(5, 3)
 print(z,r)"""
 
-lozinka = input("Unesite lozinku: ")
+"""lozinka = input("Unesite lozinku: ")
 
 def provjera_lozinke(lozinka): 
     
@@ -95,4 +95,15 @@ def provjera_lozinke(lozinka):
             print("Lozinka nije jaka!")    
     provjera(lozinka)     
              
-provjera_lozinke(lozinka)
+provjera_lozinke(lozinka)"""
+
+def filtriraj_parne(lista):
+    
+    for broj in lista:
+        if broj % 2 == 0:
+            print(broj)            
+
+lista = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+filtriraj_parne(lista)
+
+
