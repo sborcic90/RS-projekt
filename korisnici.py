@@ -1,6 +1,7 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from models import Korisnik, Korisnik_prijava, Korisnik_profil, Recenzija
 from typing import List, Literal
+import re
 
 app = FastAPI()
 
@@ -8,14 +9,47 @@ korisnici_db=[]
 
 korisnici_db_profil=[]
 
-@app.post("/korisnik_registracija", response_model=Korisnik)
+@app.post("/korisnik_registracija",response_model=Korisnik)
 def korisnik_unos(korisnik: Korisnik):
+   
+    for svaki_korisnik in korisnici_db:
+        if (svaki_korisnik.korisnicko_ime == korisnik.korisnicko_ime) or (svaki_korisnik.email == korisnik.email):
+            raise HTTPException(status_code=400, detail="Korisnik s tim korisničkim imenom ili emailom već postoji!")
+
+    specijalni_znakovi = r"[!\"#$%&/()=?*]"
+
+    if not re.search(specijalni_znakovi, korisnik.lozinka):
+        raise HTTPException(status_code=400, detail="Lozinka ne sadrži specijalni znak!")
+    
+    korisnik.korisnik_ID= len(korisnici_db)+1    
+       
     korisnici_db.append(korisnik)
     print(korisnici_db)
     return korisnik
 
 @app.post("/korisnik_profil", response_model=Korisnik_profil)
 def korisnik_unos(profil_korisnika: Korisnik_profil):
+    korisnik=next((kor for kor in korisnici_db if kor.email == profil_korisnika.email), None)
+    
+    if not korisnik:
+        raise HTTPException(status_code=404, detail="Korisnik nije pronađen!")
+    
+    profil_korisnika.ime=korisnik.ime
+    profil_korisnika.prezime=korisnik.prezime
+    profil_korisnika.korisnicko_ime=korisnik.korisnicko_ime
+    profil_korisnika.lozinka=korisnik.lozinka
+    
+    
+    for postojeci_profil in korisnici_db_profil:
+        if postojeci_profil.email == profil_korisnika.email:
+            raise HTTPException(status_code=400, detail="Korisnik s tim emailom već postoji!")
+        
+        if postojeci_profil.korisnicko_ime == profil_korisnika.korisnicko_ime:
+            raise HTTPException(status_code=400, detail="Korisnik s tim korisničkim imenom već postoji!")
+        
+        if postojeci_profil.lozinka == profil_korisnika.lozinka:
+            raise HTTPException(status_code=400, detail="Ova lozinka već postoji već postoji!")
+        
     korisnici_db_profil.append(profil_korisnika)
     print(profil_korisnika)
     return profil_korisnika
